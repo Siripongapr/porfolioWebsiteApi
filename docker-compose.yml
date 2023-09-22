@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  api:
+    build: .
+    ports:
+      - 3000:3000
+    env_file:
+      - .env
+    restart: unless-stopped
+    image: portfolio_api
+    container_name: api_portfolio
+    labels:
+      - traefik.http.routers.api.rule=Host(`slidepuzzle.siripong-apiborrirat.blog`) # replace with your domain name
+      - traefik.http.routers.api.entrypoints=web
+      - traefik.http.routers.api.middlewares=redirect-to-https
+      - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
+      - traefik.http.routers.api-secure.entrypoints=websecure
+      - traefik.http.routers.api-secure.rule=Host(`slidepuzzle.siripong-apiborrirat.blog`) # replace with your domain name
+      - traefik.http.routers.api-secure.tls.certresolver=myresolver
+      - traefik.http.services.api.loadbalancer.server.port=3000
+    networks:
+      - traefik-net
+
+networks:
+  traefik-net:
+    external: true
